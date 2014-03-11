@@ -56,15 +56,42 @@ int visited[MAX_VER];
 /* 图的深度优先搜索 */
 void DFSTraverse(Graph* g){
 	int i;
+
 	/* 初始化顶点访问记录数组 */
 	for(i = 0; i < g->VerNum; i++){
 		visited[i] = FALSE;
 	}
-	for(i = 0;i < g-> VerNum; i++){
+
+	for(i = 0;i < g->VerNum; i++){
 		if(!visited[i]){
 			/* 深度递归当前顶点 */
 			DFS(g,i);
 		}
+	}
+}
+
+
+/* 初始化图 */
+void GraphInit(Graph* g){
+	int i;
+	int Data;
+	int Start, End;
+
+	/* 初始化顶点 */
+	for(i = 0; i < g->VerNum; i++){
+		Ver* ver = (Ver*)malloc(sizeof(Ver));
+		scanf("%d", &Data);
+		ver->Data = Data;
+		g->VerArray[i] = ver;
+	}
+
+	/* 初始化边 */
+	for(i = 0; i < g->ArcNum; i++){
+		Arc* arc = (Arc*)malloc(sizeof(Arc));
+		scanf("%d%d",&Start,&End);
+		arc->Start = Start;
+		arc->End = End;
+		g->ArcArray[i] = arc;
 	}
 }
 
@@ -95,27 +122,14 @@ int main()
 {
 	Graph *g;
 	int verNum, arcNum;
-	int i;
-	int Data;
-	int Start, End;
+
 	g = (Graph *)malloc(sizeof(Graph));
+
 	while(scanf("%d%d", &verNum, &arcNum) != EOF){
-		printf("输入各顶点的值\n");
-		for(i = 0; i < verNum; i++){
-			Ver* ver = (Ver*)malloc(sizeof(Ver));
-			scanf("%d",&Data);
-			ver->Data = Data;
-			g->VerArray[i] = ver;
-		}
-		printf("输入各条边的初始顶点和结束顶点\n");
-		for(i = 0; i < arcNum; i++){
-			Arc* arc = (Arc*)malloc(sizeof(Arc));
-			scanf("%d%d",&Start,&End);
-			arc->Start = Start;
-			arc->End = End;
-			g->ArcArray[i] = arc;
-		}
-		//DFSTraverse(g);
+		g->VerNum = verNum;
+		g->ArcNum = arcNum;
+		GraphInit(g);
+		DFSTraverse(g);
 	}
 	return 0;
 }
