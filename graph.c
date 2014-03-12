@@ -20,7 +20,7 @@ typedef struct Arc{
 /* 定义顶点的结构体 */
 typedef struct Ver{
 	int Data;
-	Arc* Next;
+	Arc* AdjArc;
 }Ver;
 
 /* 定义图的结构体 */
@@ -53,27 +53,9 @@ Arc* GetNextAdj(Graph* g, int VerLocation,Arc* arc);
 int visited[MAX_VER];
 
 
-/* 图的深度优先搜索 */
-void DFSTraverse(Graph* g){
-	int i;
-
-	/* 初始化顶点访问记录数组 */
-	for(i = 0; i < g->VerNum; i++){
-		visited[i] = FALSE;
-	}
-
-	for(i = 0;i < g->VerNum; i++){
-		if(!visited[i]){
-			/* 深度递归当前顶点 */
-			DFS(g,i);
-		}
-	}
-}
-
-
 /* 初始化图 */
 void GraphInit(Graph* g){
-	int i;
+	int i, j;
 	int Data;
 	int Start, End;
 
@@ -93,6 +75,35 @@ void GraphInit(Graph* g){
 		arc->End = End;
 		g->ArcArray[i] = arc;
 	}
+
+	/* 建立顶点的邻接表 */
+	for(i = 0; i < g->VerNum; i++){
+		Arc** last = &(g->VerArray[i]->AdjArc);
+		for(j = 0; j< g->ArcNum; j++){
+			if(g->ArcArray[j]->Start == i || g->ArcArray[j]->End == i){ 
+				*last = g->ArcArray[j];
+				last = &(g->ArcArray[j]->Next);
+			}
+		}
+	}
+}
+
+
+/* 图的深度优先搜索 */
+void DFSTraverse(Graph* g){
+	int i;
+
+	/* 初始化顶点访问记录数组 */
+	for(i = 0; i < g->VerNum; i++){
+		visited[i] = FALSE;
+	}
+
+	for(i = 0;i < g->VerNum; i++){
+		if(!visited[i]){
+			/* 深度递归当前顶点 */
+			DFS(g,i);
+		}
+	}
 }
 
 
@@ -101,15 +112,24 @@ void DFS(Graph* g, int VerLocation){
 	Arc* arc;
 	visited[VerLocation] = TRUE;
 	printf("%d", g->VerArray[VerLocation]->Data);
-	for(arc = GetFirstAdj(g, VerLocation); arc != NULL; GetNextAdj(g, VerLocation, arc)){
-		DFS(g, arc->End);
+	for(arc = GetFirstAdj(g, VerLocation); arc != NULL; arc = GetNextAdj(g, VerLocation, arc)){
+		if(arc->Start == VerLocation){
+			if(!visited[arc->End]){
+				DFS(g, arc->End);
+			}
+		}
+		else{
+			if(!visited[arc->Start]){
+				DFS(g, arc->Start);
+			}
+		}
 	}
 }
 
 
 /* 获取顶点ver的第一个邻接边 */
 Arc* GetFirstAdj(Graph* g, int VerLocation){
-	return g->VerArray[VerLocation]->Next;
+	return g->VerArray[VerLocation]->AdjArc;
 }
 
 
@@ -130,6 +150,7 @@ int main()
 		g->ArcNum = arcNum;
 		GraphInit(g);
 		DFSTraverse(g);
+		printf("\n");
 	}
 	return 0;
 }
