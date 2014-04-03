@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 #define MAX_VER 20
-#define MAX_ARC 20
+#define MAX_ARC (MAX_VER * 2)
 #define TRUE 1
 #define FALSE 0
 
@@ -68,19 +68,26 @@ void GraphInit(Graph* g){
 	}
 
 	/* 初始化边 */
-	for(i = 0; i < g->ArcNum; i++){
+	for(i = 0; i < g->ArcNum / 2; i++){
 		Arc* arc = (Arc*)malloc(sizeof(Arc));
 		scanf("%d%d",&Start,&End);
 		arc->Start = Start;
 		arc->End = End;
 		g->ArcArray[i] = arc;
 	}
+	/* 建立所有边的逆向边 */
+	for(i = 0; i < g->ArcNum / 2; i++){
+		Arc* arc = (Arc*)malloc(sizeof(Arc));
+		arc->Start = g->ArcArray[i]->End;
+		arc->End = g->ArcArray[i]->Start;
+		g->ArcArray[i + g->ArcNum / 2] = arc;
+	}
 
 	/* 建立顶点的邻接表 */
 	for(i = 0; i < g->VerNum; i++){
 		Arc** last = &(g->VerArray[i]->AdjArc);
 		for(j = 0; j< g->ArcNum; j++){
-			if(g->ArcArray[j]->Start == i || g->ArcArray[j]->End == i){ 
+			if(g->ArcArray[j]->Start == i){ 
 				*last = g->ArcArray[j];
 				last = &(g->ArcArray[j]->Next);
 			}
@@ -147,7 +154,7 @@ int main()
 
 	while(scanf("%d%d", &verNum, &arcNum) != EOF){
 		g->VerNum = verNum;
-		g->ArcNum = arcNum;
+		g->ArcNum = arcNum * 2;
 		GraphInit(g);
 		DFSTraverse(g);
 		printf("\n");
